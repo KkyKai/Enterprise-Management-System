@@ -1,0 +1,68 @@
+name: Validate Commit Messages
+
+on:
+  push:
+    branches:
+      - main # Or your default branch, e.g., master, develop
+      - develop
+    paths-ignore:
+      - '**.md' # Ignore commit message validation for changes to markdown files
+
+jobs:
+  validate-commits:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch all history for commit message checking
+
+      - name: Get commit messages
+        id: get_commits
+        run: |
+          # Get all commit messages from the current push
+          COMMIT_MESSAGES=""
+          for sha in $(git rev-list ${{ github.event.before }}..${{ github.sha }}); do
+            COMMIT_MESSAGES="${COMMIT_MESSAGES}$(git log -1 --pretty=format:%s $sha)\n"
+          done
+          echo "commit_messages<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMIT_MESSAGES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Validate commit messages
+        run: |
+          INVALID_COMMITS=""
+          while IFS= read -r line; do
+            # Define your regex patterns based on the image
+            # feat:
+            # feat(scope):
+            # feat!:
+            # fix:
+            # fix(scope):
+            # perf:
+            # build:
+            # refactor:
+            # style:
+            # BREAKING CHANGES: (can be multiline, check for "BREAKING CHANGES:" at start of line)
+
+            # Updated regex to be more flexible, allowing for scopes and specific messages
+            # This regex attempts to cover most of the examples, including the '!' for breaking changes in type
+            # and allowing for additional multiline messages like "The error occurred because of <reasons>."
+            # and "BREAKING CHANGES: ticket enpoints no longer supports list all entites."
+
+            # Main pattern for conventional commits
+            if [[ ! "$line" =~ ^(feat|fix|perf|build|refactor|style)(\([a-zA-Z0-9_-]+\))?(!)?:\ (.*)$ && \
+                  ! "$line" =~ ^refers\ to\ JIRA-[0-9]+$ && \
+                  ! "$line" =~ ^BREAKING\ CHANGES:.*$ && \
+                  ! "$line" =~ ^The\ error\ occurred\ because\ of\ <reasons>\.$ ]]; then
+              INVALID_COMMITS="${INVALID_COMMITS}- ${line}\n"
+            fi
+          done <<< "${{ steps.get_commits.outputs.commit_messages }}"
+
+          if [ -n "$INVALID_COMMITS" ]; then
+            echo "::error::The following commit messages do not follow the naming convention:"
+            echo -e "$INVALID_COMMITS"
+            exit 1
+          else
+            echo "All commit messages adhere to the naming convention."
+          fi
