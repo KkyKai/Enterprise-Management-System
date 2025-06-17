@@ -1,7 +1,9 @@
+import { useRouter } from 'next/navigation'; // App Router version
 import React, { useState } from 'react';
 import { User, Lock, Eye, EyeOff, Shield, Star, AlertCircle } from 'lucide-react';
 
 const MilitaryLoginPage: React.FC = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     username: '',
     password: ''
@@ -40,15 +42,31 @@ const MilitaryLoginPage: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!validateForm()) return;
-    
     setIsLoading(true);
-    
-    // Simulate login process
-    setTimeout(() => {
+
+    try {
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        alert(result.error || 'Login failed');
+      } else {
+        localStorage.setItem('user', JSON.stringify(result.user));
+        localStorage.setItem('isAuthenticated', 'true');
+
+        // ✅ Redirect to profile page
+        router.push('/profile');
+      }
+    } catch (err) {
+      alert('Something went wrong');
+    } finally {
       setIsLoading(false);
-      // Here you would typically handle the actual login logic
-      alert(`Login attempt for user: ${formData.username}`);
-    }, 2000);
+    }
   };
 
   const togglePasswordVisibility = () => {

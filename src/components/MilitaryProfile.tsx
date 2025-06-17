@@ -342,6 +342,12 @@ const MilitaryProfileApp: React.FC = () => {
             <div className="flex-shrink-0">
               <RadarChart data={profile.proficiency} />
             </div>
+            <button onClick={() => {
+            localStorage.removeItem('isAuthenticated');
+            localStorage.removeItem('user');
+            window.location.href = '/login'; // or use `router.push('/login')` if you're using `next/navigation`
+          }}
+          className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">Logout </button>
           </div>
         </div>
 
