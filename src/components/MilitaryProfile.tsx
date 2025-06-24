@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { User, Calendar, Award, MapPin, Star, Plus, Edit3, Clock} from 'lucide-react';
+import { User, Calendar, Award, MapPin, Star, Edit3, Clock, Search, Upload } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -15,8 +15,8 @@ interface ROA {
 }
 
 interface Tour {
-  position: string;
-  location: string;
+  appointment: string;
+  posting: string;
   duration: string;
   unit: string;
 }
@@ -25,6 +25,9 @@ interface Proficiency {
   courses: number;
   conferences: number;
   seminars: number;
+  leadership: number;
+  tactics: number;
+  logistics: number;
 }
 
 interface UpcomingROA {
@@ -34,21 +37,39 @@ interface UpcomingROA {
   time?: string;
 }
 
+interface Achievement {
+  title: string;
+  date: string;
+  category: string;
+  description?: string;
+}
+
 interface Profile {
   name: string;
   rank: string;
+  currentAppointment: string;
+  areasOfInterest: string[];
   profilePhoto: string;
   roas: ROA[];
   tours: Tour[];
   proficiency: Proficiency;
   upcomingROAs: UpcomingROA[];
+  achievements: Achievement[];
 }
-
 const MilitaryProfileApp: React.FC = () => {
   const [profile, setProfile] = useState<Profile>({
-    name: "Colonel Sarah Mitchell",
-    rank: "Colonel",
+    name: "Goh Yu Sheng",
+    rank: "ME4-1",
+    currentAppointment: "Platoon Commander - 10C4I",
+    areasOfInterest: ["Strategic Planning", "Cyber Security", "Joint Operations", "Leadership Development"],
     profilePhoto: "https://picsum.photos/200",
+    achievements: [
+      { title: "1st in DSTA Data Challenge", date: "2023-11-15", category: "Competition", description: "Won first place in national data analytics competition" },
+      { title: "Excellence in Leadership Award", date: "2023-08-20", category: "Leadership", description: "Recognized for outstanding leadership during joint operations" },
+      { title: "Cyber Security Certification", date: "2023-06-10", category: "Certification", description: "Advanced certification in cybersecurity protocols" },
+      { title: "Outstanding Performance Medal", date: "2023-03-25", category: "Medal", description: "Awarded for exceptional service and dedication" },
+      { title: "Innovation Award", date: "2022-12-05", category: "Innovation", description: "Developed new strategic planning methodology" }
+    ],
     roas: [
       { name: "Advanced Leadership Course", completion: "2023-08-15", status: "Completed" },
       { name: "Strategic Planning ROA", completion: "2023-05-22", status: "Completed" },
@@ -56,15 +77,19 @@ const MilitaryProfileApp: React.FC = () => {
       { name: "Joint Operations Training", completion: "2025-02-18", status: "Completed" }
     ],
     tours: [
-      { position: "Battalion Commander", location: "Fort Bragg, NC", duration: "2022-2025", unit: "3rd Infantry Division" },
-      { position: "Operations Officer", location: "Ramstein AB, Germany", duration: "2020-2022", unit: "EUCOM" },
-      { position: "Company Commander", location: "Fort Campbell, KY", duration: "2018-2020", unit: "101st Airborne" }
+      { appointment: "Battalion Commander", posting: "Fort Bragg, NC", duration: "2022-2025", unit: "3rd Infantry Division" },
+      { appointment: "Operations Officer", posting: "Ramstein AB, Germany", duration: "2020-2022", unit: "EUCOM" },
+      { appointment: "Company Commander", posting: "Fort Campbell, KY", duration: "2018-2020", unit: "101st Airborne" }
     ],
     proficiency: {
       courses: 85,
       conferences: 72,
-      seminars: 90
+      seminars: 90,
+      leadership: 88,
+      tactics: 78,
+      logistics: 82
     },
+
     upcomingROAs: [
       // July 2025 Events
       { name: "Senior Staff Course", date: "2025-07-15", type: "Course", time: "09:00" },
@@ -72,7 +97,7 @@ const MilitaryProfileApp: React.FC = () => {
       { name: "Cyber Defense Workshop", date: "2025-07-22", type: "Workshop", time: "10:30" },
       { name: "Strategic Planning Seminar", date: "2025-07-25", type: "Seminar", time: "13:00" },
       { name: "Joint Training Exercise", date: "2025-07-28", type: "Course", time: "08:00" },
-      
+
       // August 2025 Events
       { name: "NATO Leadership Summit", date: "2025-08-05", type: "Conference", time: "09:00" },
       { name: "Advanced Tactics Course", date: "2025-08-08", type: "Course", time: "08:30" },
@@ -82,7 +107,7 @@ const MilitaryProfileApp: React.FC = () => {
       { name: "Communications Workshop", date: "2025-08-22", type: "Workshop", time: "14:00" },
       { name: "Physical Fitness Test", date: "2025-08-26", type: "Assessment", time: "06:00" },
       { name: "Leadership Development", date: "2025-08-29", type: "Seminar", time: "10:00" },
-      
+
       // September 2025 Events
       { name: "Military Innovation Seminar", date: "2025-09-03", type: "Seminar", time: "13:30" },
       { name: "Weapons Qualification", date: "2025-09-06", type: "Assessment", time: "08:00" },
@@ -92,7 +117,7 @@ const MilitaryProfileApp: React.FC = () => {
       { name: "Annual Performance Review", date: "2025-09-20", type: "Assessment", time: "11:00" },
       { name: "Ethics and Leadership Seminar", date: "2025-09-24", type: "Seminar", time: "13:00" },
       { name: "Technology Integration Workshop", date: "2025-09-27", type: "Workshop", time: "15:00" },
-      
+
       // October 2025 Events
       { name: "Advanced Tactics ROA", date: "2025-10-02", type: "Course", time: "08:00" },
       { name: "Multi-National Exercise Planning", date: "2025-10-05", type: "Conference", time: "09:30" },
@@ -103,14 +128,14 @@ const MilitaryProfileApp: React.FC = () => {
       { name: "Security Clearance Review", date: "2025-10-22", type: "Assessment", time: "13:00" },
       { name: "Mental Health Awareness", date: "2025-10-25", type: "Seminar", time: "11:00" },
       { name: "Promotion Board Preparation", date: "2025-10-29", type: "Workshop", time: "09:00" },
-      
+
       // November 2025 Events
       { name: "Veterans Day Ceremony", date: "2025-11-11", type: "Conference", time: "10:00" },
       { name: "Winter Preparedness Training", date: "2025-11-14", type: "Course", time: "08:00" },
       { name: "Budget Planning Workshop", date: "2025-11-18", type: "Workshop", time: "13:00" },
       { name: "Unit Readiness Assessment", date: "2025-11-21", type: "Assessment", time: "09:00" },
       { name: "Family Readiness Seminar", date: "2025-11-25", type: "Seminar", time: "14:00" },
-      
+
       // December 2025 Events
       { name: "Year-End Performance Review", date: "2025-12-03", type: "Assessment", time: "10:00" },
       { name: "Holiday Safety Briefing", date: "2025-12-06", type: "Seminar", time: "15:00" },
@@ -123,67 +148,70 @@ const MilitaryProfileApp: React.FC = () => {
 
   // Radar chart component
   const RadarChart: React.FC<{ data: Proficiency }> = ({ data }) => {
-    const size = 200;
+    const size = 350;
     const center = size / 2;
-    const maxRadius = 80;
-    const angles = [0, 120, 240].map(a => (a * Math.PI) / 180);
-    
+    const maxRadius = 120;
+    const angles = [0, 60, 120, 180, 240, 300].map(a => (a * Math.PI) / 180);
+
     const points = [
       { label: 'Courses', value: data.courses, angle: angles[0] },
-      { label: 'Conferences', value: data.conferences, angle: angles[1] },
-      { label: 'Seminars', value: data.seminars, angle: angles[2] }
+      { label: 'Leadership', value: data.leadership, angle: angles[1] },
+      { label: 'Conferences', value: data.conferences, angle: angles[2] },
+      { label: 'Tactics', value: data.tactics, angle: angles[3] },
+      { label: 'Seminars', value: data.seminars, angle: angles[4] },
+      { label: 'Logistics', value: data.logistics, angle: angles[5] }
     ];
 
     const getCoords = (angle, radius) => ({
-      x: center + Math.cos(angle - Math.PI/2) * radius,
-      y: center + Math.sin(angle - Math.PI/2) * radius
+      x: center + Math.cos(angle - Math.PI / 2) * radius,
+      y: center + Math.sin(angle - Math.PI / 2) * radius
     });
 
     const dataPoints = points.map(p => getCoords(p.angle, (p.value / 100) * maxRadius));
-    const pathData = `M ${dataPoints[0].x} ${dataPoints[0].y} L ${dataPoints[1].x} ${dataPoints[1].y} L ${dataPoints[2].x} ${dataPoints[2].y} Z`;
+    const pathData = `M ${dataPoints.map(p => `${p.x} ${p.y}`).join(' L ')} Z`;
 
     return (
-      <div className="bg-white p-4 rounded-lg shadow-md">
+      <div className="bg-white p-6 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4 text-center">Proficiency Overview</h3>
         <svg width={size} height={size} className="mx-auto">
           {/* Grid circles */}
-          {[20, 40, 60, 80].map(r => (
-            <circle key={r} cx={center} cy={center} r={r} fill="none" stroke="#e5e7eb" strokeWidth="1"/>
+          {[24, 48, 72, 96, 120].map(r => (
+            <circle key={r} cx={center} cy={center} r={r} fill="none" stroke="#e5e7eb" strokeWidth="1" />
           ))}
-          
+
           {/* Grid lines */}
           {angles.map((angle, i) => {
             const end = getCoords(angle, maxRadius);
             return (
-              <line key={i} x1={center} y1={center} x2={end.x} y2={end.y} stroke="#e5e7eb" strokeWidth="1"/>
+              <line key={i} x1={center} y1={center} x2={end.x} y2={end.y} stroke="#e5e7eb" strokeWidth="1" />
             );
           })}
-          
+
           {/* Data area */}
-          <path d={pathData} fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2"/>
-          
+          <path d={pathData} fill="rgba(59, 130, 246, 0.3)" stroke="#3b82f6" strokeWidth="2" />
+
           {/* Data points */}
           {dataPoints.map((point, i) => (
-            <circle key={i} cx={point.x} cy={point.y} r="4" fill="#3b82f6"/>
+            <circle key={i} cx={point.x} cy={point.y} r="4" fill="#3b82f6" />
           ))}
-          
+
           {/* Labels */}
           {points.map((point, i) => {
-            const labelCoords = getCoords(point.angle, maxRadius + 20);
+            const labelCoords = getCoords(point.angle, maxRadius + 30);
             return (
               <g key={i}>
-                <text 
-                  x={labelCoords.x} 
-                  y={labelCoords.y} 
-                  textAnchor="middle" 
+                <text
+                  x={labelCoords.x}
+                  y={labelCoords.y}
+                  textAnchor="middle"
                   className="text-xs font-medium fill-gray-700"
                 >
                   {point.label}
                 </text>
-                <text 
-                  x={labelCoords.x} 
-                  y={labelCoords.y + 12} 
-                  textAnchor="middle" 
+                <text
+                  x={labelCoords.x}
+                  y={labelCoords.y + 12}
+                  textAnchor="middle"
                   className="text-xs fill-blue-600 font-semibold"
                 >
                   {point.value}%
@@ -228,6 +256,19 @@ const MilitaryProfileApp: React.FC = () => {
     const handleDateClick = (arg: any) => {
       console.log('Date clicked:', arg.dateStr);
     };
+
+    const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        console.log('File uploaded:', file.name);
+        // Handle file upload logic here
+      }
+    };
+
+    const handleSearch = () => {
+      console.log('Searching for:', searchQuery);
+      // Handle search logic here
+    };
     return (
       <div className="bg-white p-4 rounded-lg shadow-md">
         <h3 className="text-lg font-semibold mb-4">Upcoming ROAs Calendar</h3>
@@ -259,7 +300,7 @@ const MilitaryProfileApp: React.FC = () => {
             }}
           />
         </div>
-        
+
         {/* Legend */}
         <div className="mt-4 flex flex-wrap gap-3">
           <div className="flex items-center space-x-2">
@@ -287,14 +328,14 @@ const MilitaryProfileApp: React.FC = () => {
     );
   };
 
-        // Sort upcoming ROAs by date
-  const sortedUpcomingROAs = [...profile.upcomingROAs].sort((a, b) => 
-      new Date(a.date).getTime() - new Date(b.date).getTime()
-    );
+  // Sort upcoming ROAs by date
+  const sortedUpcomingROAs = [...profile.upcomingROAs].sort((a, b) =>
+    new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
 
 
 
-      // Get type-specific styling
+  // Get type-specific styling
   const getTypeStyle = (type: string) => {
     switch (type.toLowerCase()) {
       case 'course': return { border: 'border-blue-500', bg: 'bg-blue-100', text: 'text-blue-800' };
@@ -312,9 +353,9 @@ const MilitaryProfileApp: React.FC = () => {
         {/* Header */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <div className="flex items-center space-x-6">
-            <img 
-              src={profile.profilePhoto} 
-              alt="Profile" 
+            <img
+              src={profile.profilePhoto}
+              alt="Profile"
               className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
             />
             <div className="flex-1">
@@ -325,6 +366,17 @@ const MilitaryProfileApp: React.FC = () => {
               <div className="flex items-center space-x-2 mb-2">
                 <Star className="w-5 h-5 text-yellow-500" />
                 <span className="text-xl font-semibold text-blue-600">{profile.rank}</span>
+              </div>
+              <div className="text-lg text-gray-600 mb-3">{profile.currentAppointment}</div>
+              <div className="mb-3">
+                <div className="text-sm font-medium text-gray-700 mb-2">Areas of Interest:</div>
+                <div className="flex flex-wrap gap-2">
+                  {profile.areasOfInterest.map((area, i) => (
+                    <span key={i} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                      {area}
+                    </span>
+                  ))}
+                </div>
               </div>
               <div className="flex items-center space-x-4 text-sm text-gray-600">
                 <span className="flex items-center space-x-1">
@@ -337,17 +389,17 @@ const MilitaryProfileApp: React.FC = () => {
                 </span>
               </div>
             </div>
-            
+
             {/* Radar Chart in Header */}
             <div className="flex-shrink-0">
               <RadarChart data={profile.proficiency} />
             </div>
             <button onClick={() => {
-            localStorage.removeItem('isAuthenticated');
-            localStorage.removeItem('user');
-            window.location.href = '/login'; // or use `router.push('/login')` if you're using `next/navigation`
-          }}
-          className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">Logout </button>
+              localStorage.removeItem('isAuthenticated');
+              localStorage.removeItem('user');
+              window.location.href = '/login'; // or use `router.push('/login')` if you're using `next/navigation`
+            }}
+              className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">Logout </button>
           </div>
         </div>
 
@@ -360,7 +412,7 @@ const MilitaryProfileApp: React.FC = () => {
                 <Award className="w-5 h-5 text-blue-500" />
                 <span>Completed ROAs</span>
               </h2>
-              <Plus className="w-5 h-5 text-gray-400 cursor-pointer hover:text-blue-500" />
+
             </div>
             <div className="space-y-3">
               {profile.roas.map((roa, i) => (
@@ -382,16 +434,16 @@ const MilitaryProfileApp: React.FC = () => {
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-semibold flex items-center space-x-2">
                 <MapPin className="w-5 h-5 text-blue-500" />
-                <span>Military Tours</span>
+                <span>Posting and Appointments</span>
               </h2>
-              <Plus className="w-5 h-5 text-gray-400 cursor-pointer hover:text-blue-500" />
+
             </div>
             <div className="space-y-4">
               {profile.tours.map((tour, i) => (
                 <div key={i} className="border-l-4 border-blue-500 pl-4 py-2">
-                  <div className="font-medium text-gray-800">{tour.position}</div>
+                  <div className="font-medium text-gray-800">{tour.appointment}</div>
                   <div className="text-sm text-gray-600">{tour.unit}</div>
-                  <div className="text-sm text-gray-500">{tour.location}</div>
+                  <div className="text-sm text-gray-500">{tour.posting}</div>
                   <div className="text-xs text-gray-400 mt-1">{tour.duration}</div>
                 </div>
               ))}
@@ -412,7 +464,7 @@ const MilitaryProfileApp: React.FC = () => {
               <Clock className="w-5 h-5 text-blue-500" />
               <span>Upcoming ROAs & Events</span>
             </h2>
-            <Plus className="w-5 h-5 text-gray-400 cursor-pointer hover:text-blue-500" />
+
           </div>
           <div className="space-y-3 max-h-96 overflow-y-auto">
             {sortedUpcomingROAs.map((roa, i) => {
