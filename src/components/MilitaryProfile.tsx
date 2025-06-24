@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
-import { User, Calendar, Award, MapPin, Star, Edit3, Clock, Search, Upload } from 'lucide-react';
+import { User, Calendar, Award, MapPin, Star, Clock, Search, Upload, Trophy } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
@@ -57,6 +57,9 @@ interface Profile {
   achievements: Achievement[];
 }
 const MilitaryProfileApp: React.FC = () => {
+  // Search 
+  const [searchQuery, setSearchQuery] = useState("");
+
   const [profile, setProfile] = useState<Profile>({
     name: "Goh Yu Sheng",
     rank: "ME4-1",
@@ -328,6 +331,18 @@ const MilitaryProfileApp: React.FC = () => {
     );
   };
 
+  // Get achievement category styling
+  const getAchievementStyle = (category: string) => {
+    switch (category.toLowerCase()) {
+      case 'competition': return { bg: 'bg-yellow-100', text: 'text-yellow-800', border: 'border-yellow-500' };
+      case 'leadership': return { bg: 'bg-blue-100', text: 'text-blue-800', border: 'border-blue-500' };
+      case 'certification': return { bg: 'bg-green-100', text: 'text-green-800', border: 'border-green-500' };
+      case 'medal': return { bg: 'bg-purple-100', text: 'text-purple-800', border: 'border-purple-500' };
+      case 'innovation': return { bg: 'bg-orange-100', text: 'text-orange-800', border: 'border-orange-500' };
+      default: return { bg: 'bg-gray-100', text: 'text-gray-800', border: 'border-gray-500' };
+    }
+  };
+
   // Sort upcoming ROAs by date
   const sortedUpcomingROAs = [...profile.upcomingROAs].sort((a, b) =>
     new Date(a.date).getTime() - new Date(b.date).getTime()
@@ -347,59 +362,166 @@ const MilitaryProfileApp: React.FC = () => {
     }
   };
 
+  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      console.log('File uploaded:', file.name);
+      // Handle file upload logic here
+    }
+  };
+
+  const handleSearch = () => {
+    console.log('Searching for:', searchQuery);
+    // Handle search logic here
+  };
+
+
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <div className="flex items-center space-x-6">
-            <img
-              src={profile.profilePhoto}
-              alt="Profile"
-              className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
-            />
-            <div className="flex-1">
-              <div className="flex items-center space-x-3 mb-2">
-                <h1 className="text-3xl font-bold text-gray-800">{profile.name}</h1>
-                <Edit3 className="w-5 h-5 text-gray-400 cursor-pointer hover:text-blue-500" />
-              </div>
-              <div className="flex items-center space-x-2 mb-2">
-                <Star className="w-5 h-5 text-yellow-500" />
-                <span className="text-xl font-semibold text-blue-600">{profile.rank}</span>
-              </div>
-              <div className="text-lg text-gray-600 mb-3">{profile.currentAppointment}</div>
-              <div className="mb-3">
-                <div className="text-sm font-medium text-gray-700 mb-2">Areas of Interest:</div>
-                <div className="flex flex-wrap gap-2">
-                  {profile.areasOfInterest.map((area, i) => (
-                    <span key={i} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
-                      {area}
-                    </span>
-                  ))}
+        {/* Sticky Search Bar and Upload */}
+        <div className="sticky top-0 z-50 bg-white shadow-md rounded-lg">
+          <div className="max-w-screen-xl mx-auto px-4">
+            <div className="bg-white rounded-lg p-4 mb-6">
+              <div className="flex items-center space-x-4">
+                {/* Logout Button*/}
+              <button onClick={() => {
+                localStorage.removeItem('isAuthenticated');
+                localStorage.removeItem('user');
+                window.location.href = '/login'; // or use `router.push('/login')` if you're using `next/navigation`
+              }}
+                className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">Logout </button>
+            
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Search Profiles..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                  />
+                </div>
+                <button
+                  onClick={handleSearch}
+                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
+                >
+                  Search
+                </button>
+                <div className="relative">
+                  <input
+                    type="file"
+                    id="file-upload"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg cursor-pointer transition-colors"
+                  >
+                    <Upload className="w-4 h-4" />
+                    <span>Upload</span>
+                  </label>
                 </div>
               </div>
-              <div className="flex items-center space-x-4 text-sm text-gray-600">
-                <span className="flex items-center space-x-1">
-                  <Award className="w-4 h-4" />
-                  <span>{profile.roas.length} ROAs Completed</span>
-                </span>
-                <span className="flex items-center space-x-1">
-                  <MapPin className="w-4 h-4" />
-                  <span>{profile.tours.length} Tours Served</span>
-                </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Header */}
+        <div className=" flex-col items-center space-y-4">
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+
+            <div className="flex items-center space-x-6">
+
+              <div className="">
+                <div className="flex items-center space-x-6">
+
+                  <img
+                    src={profile.profilePhoto}
+                    alt="Profile"
+                    className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+                  />
+
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <h1 className="text-3xl font-bold text-gray-800">{profile.name}</h1>
+                    </div>
+                    <div className="flex items-center space-x-2 mb-2">
+                      <Star className="w-5 h-5 text-yellow-500" />
+                      <span className="text-xl font-semibold text-blue-600">{profile.rank}</span>
+                    </div>
+                    <div className="text-lg text-gray-600 mb-3">{profile.currentAppointment}</div>
+                    <div className="mb-3">
+                      <div className="text-sm font-medium text-gray-700 mb-2">Areas of Interest:</div>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.areasOfInterest.map((area, i) => (
+                          <span key={i} className="px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded-full">
+                            {area}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <span className="flex items-center space-x-1">
+                        <Award className="w-4 h-4" />
+                        <span>{profile.roas.length} ROAs Completed</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <MapPin className="w-4 h-4" />
+                        <span>{profile.tours.length} Tours Served</span>
+                      </span>
+                      <span className="flex items-center space-x-1">
+                        <Trophy className="w-4 h-4" />
+                        <span>{profile.achievements.length} Achievements</span>
+                      </span>
+                    </div>
+                  </div>
+
+
+                </div>
+
+                {/* Awards Container */}
+                <div className="w-128 bg-gray-50 rounded-lg p-2 m-4">
+                  <div className="flex items-center space-x-2 mb-3">
+                    <Trophy className="w-4 h-4 text-yellow-500" />
+                    <h3 className="text-sm font-semibold text-gray-700">Recent Achievements</h3>
+                  </div>
+                  <div className="space-y-2 max-h-32 overflow-y-auto">
+                    {profile.achievements.slice(0, 3).map((achievement, i) => {
+                      const style = getAchievementStyle(achievement.category);
+                      return (
+                        <div key={i} className={`border-l-3 ${style.border} pl-2 py-1`}>
+                          <div className="text-xs font-medium text-gray-800">{achievement.title}</div>
+                          <div className="text-xs text-gray-500">{new Date(achievement.date).toLocaleDateString()}</div>
+                          <span className={`inline-block mt-1 px-2 py-0.5 text-xs ${style.bg} ${style.text} rounded`}>
+                            {achievement.category}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {/* {profile.achievements.length > 3 && (
+                    <div className="text-xs text-blue-600 mt-2 cursor-pointer hover:underline">
+                      View all {profile.achievements.length} achievements
+                    </div>
+                  )} */}
+                </div>
               </div>
+
+
+
+
+              {/* Radar Chart in Header */}
+              <div className="flex-shrink-0">
+                <RadarChart data={profile.proficiency} />
+              </div>
+
             </div>
 
-            {/* Radar Chart in Header */}
-            <div className="flex-shrink-0">
-              <RadarChart data={profile.proficiency} />
-            </div>
-            <button onClick={() => {
-              localStorage.removeItem('isAuthenticated');
-              localStorage.removeItem('user');
-              window.location.href = '/login'; // or use `router.push('/login')` if you're using `next/navigation`
-            }}
-              className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">Logout </button>
+
           </div>
         </div>
 
