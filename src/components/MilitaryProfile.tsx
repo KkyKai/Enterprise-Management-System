@@ -6,6 +6,8 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import Image from "next/image";
+import '../styles/globals.css';
 
 // TypeScript interfaces
 interface ROA {
@@ -377,59 +379,79 @@ const MilitaryProfileApp: React.FC = () => {
 
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto">
-        {/* Sticky Search Bar and Upload */}
-        <div className="sticky top-0 z-50 bg-white shadow-md rounded-lg">
-          <div className="max-w-screen-xl mx-auto px-4">
-            <div className="bg-white rounded-lg p-4 mb-6">
-              <div className="flex items-center space-x-4">
-                {/* Logout Button*/}
-              <button onClick={() => {
+    <div className="min-h-screen bg-gray-50">
+      {/* Sticky Search Bar and Upload */}
+      <div className="sticky top-0 z-50 bg-blue-900 shadow-md">
+        <div className="max-w-screen-xl mx-auto px-4">
+          <div className="flex items-center h-20 space-x-6">
+
+            {/* Big Main Logo */}
+
+            <div className="relative font-bold h-full w-20">
+              <Image
+                src="/ems-high-resolution-logo-transparent.png"
+                alt="Logo"
+                fill={true}
+                objectFit='contain'
+                
+              //style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            </div>
+
+            {/* Tabs */}
+            <div className="flex h-full">
+              <a
+                rel="noreferrer"
+                href="/profile"
+                className="text-white hover:text-gray-300 transition-colors flex justify-center items-center navbar active-tab"
+              >
+                Profile
+              </a>
+              <a
+                rel="noreferrer"
+                href="/upload"
+                className="text-white hover:text-gray-300 transition-colors flex justify-center items-center navbar"
+              >
+                Upload
+              </a>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search Profiles..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+              />
+              {/* <button
+                onClick={handleSearch}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+              >
+                Search
+              </button> */}
+            </div>
+
+            {/* Logout Button */}
+            <button
+              onClick={() => {
                 localStorage.removeItem('isAuthenticated');
                 localStorage.removeItem('user');
-                window.location.href = '/login'; // or use `router.push('/login')` if you're using `next/navigation`
+                window.location.href = '/login';
               }}
-                className="ml-auto px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm">Logout </button>
-            
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                  <input
-                    type="text"
-                    placeholder="Search Profiles..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                    className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                  />
-                </div>
-                <button
-                  onClick={handleSearch}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors"
-                >
-                  Search
-                </button>
-                <div className="relative">
-                  <input
-                    type="file"
-                    id="file-upload"
-                    onChange={handleFileUpload}
-                    className="hidden"
-                    accept=".pdf,.doc,.docx,.jpg,.jpeg,.png"
-                  />
-                  <label
-                    htmlFor="file-upload"
-                    className="flex items-center space-x-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg cursor-pointer transition-colors"
-                  >
-                    <Upload className="w-4 h-4" />
-                    <span>Upload</span>
-                  </label>
-                </div>
-              </div>
-            </div>
+              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm ml-auto"
+            >
+              Logout
+            </button>
           </div>
         </div>
+      </div>
 
+
+      <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
         <div className=" flex-col items-center space-y-4">
           <div className="bg-white rounded-lg shadow-md p-6 mb-6">
