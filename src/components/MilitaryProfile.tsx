@@ -49,6 +49,7 @@ interface Achievement {
 interface Profile {
   name: string;
   rank: string;
+  career_track: string;
   currentAppointment: string;
   areasOfInterest: string[];
   profilePhoto: string;
@@ -65,6 +66,7 @@ const MilitaryProfileApp: React.FC = () => {
   const [profile, setProfile] = useState<Profile>({
     name: "Goh Yu Sheng",
     rank: "ME4-1",
+    career_track: "C4X", 
     currentAppointment: "Platoon Commander - 10C4I",
     areasOfInterest: ["Strategic Planning", "Cyber Security", "Joint Operations", "Leadership Development"],
     profilePhoto: "https://picsum.photos/200",
@@ -473,7 +475,7 @@ const MilitaryProfileApp: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-2 mb-2">
                       <Star className="w-5 h-5 text-yellow-500" />
-                      <span className="text-xl font-semibold text-blue-600">{profile.rank}</span>
+                      <span className="text-xl font-semibold text-blue-600">{profile.rank} {profile.career_track}</span>
                     </div>
                     <div className="text-lg text-gray-600 mb-3">{profile.currentAppointment}</div>
                     <div className="mb-3">
