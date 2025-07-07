@@ -7,7 +7,7 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import Image from "next/image";
-import '../styles/globals.css';
+import NavHeader from "./NavHeader"
 
 // TypeScript interfaces
 interface ROA {
@@ -66,7 +66,7 @@ const MilitaryProfileApp: React.FC = () => {
   const [profile, setProfile] = useState<Profile>({
     name: "Goh Yu Sheng",
     rank: "ME4-1",
-    career_track: "C4X", 
+    career_track: "C4X",
     currentAppointment: "Platoon Commander - 10C4I",
     areasOfInterest: ["Strategic Planning", "Cyber Security", "Joint Operations", "Leadership Development"],
     profilePhoto: "https://picsum.photos/200",
@@ -382,76 +382,12 @@ const MilitaryProfileApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Sticky Search Bar and Upload */}
-      <div className="sticky top-0 z-50 bg-blue-900 shadow-md">
-        <div className="max-w-screen-xl mx-auto px-4">
-          <div className="flex items-center h-20 space-x-6">
-
-            {/* Big Main Logo */}
-
-            <div className="relative font-bold h-full w-20">
-              <Image
-                src="/ems-high-resolution-logo-transparent.png"
-                alt="Logo"
-                fill={true}
-                objectFit='contain'
-                
-              //style={{ width: "100%", height: "100%", objectFit: "cover" }}
-              />
-            </div>
-
-            {/* Tabs */}
-            <div className="flex h-full">
-              <a
-                rel="noreferrer"
-                href="/profile"
-                className="text-white hover:text-gray-300 transition-colors flex justify-center items-center navbar active-tab"
-              >
-                Profile
-              </a>
-              <a
-                rel="noreferrer"
-                href="/upload"
-                className="text-white hover:text-gray-300 transition-colors flex justify-center items-center navbar"
-              >
-                Upload
-              </a>
-            </div>
-
-            {/* Search Bar */}
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                placeholder="Search Profiles..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-              />
-              {/* <button
-                onClick={handleSearch}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 px-3 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
-              >
-                Search
-              </button> */}
-            </div>
-
-            {/* Logout Button */}
-            <button
-              onClick={() => {
-                localStorage.removeItem('isAuthenticated');
-                localStorage.removeItem('user');
-                window.location.href = '/login';
-              }}
-              className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm ml-auto"
-            >
-              Logout
-            </button>
-          </div>
-        </div>
-      </div>
-
+      {/* Nav Bar */}
+      <NavHeader
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        handleSearch={handleSearch}
+      />
 
       <div className="max-w-6xl mx-auto p-6">
         {/* Header */}
