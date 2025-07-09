@@ -1,17 +1,19 @@
 # main.py
 from fastapi import FastAPI, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from pydantic import BaseModel
 from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.ext.declarative import declarative_base
 from fastapi.middleware.cors import CORSMiddleware
+from jose import JWTError, jwt
+
+# Import the function to get the public key dynamically
+from .auth import get_keycloak_public_key
 
 # --- Database Setup ---
 DATABASE_URL="postgresql://postgres:root@localhost:5432/public"
 engine = create_engine(
-    DATABASE_URL,  # or your actual DB name
+    DATABASE_URL,
     connect_args={"options": "-csearch_path=public"}
 )
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -36,51 +38,49 @@ def get_db():
 # --- Keycloak Configuration ---
 KEYCLOAK_ISSUER = "http://localhost:9800/realms/ems"
 KEYCLOAK_ALGORITHMS = ["RS256"]
-# In a production environment, fetch the public key from Keycloak's JWKS endpoint
-KEYCLOAK_PUBLIC_KEY = """
------BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApjQrvy6+CtfA9f63Wl5F0aWFZdlZwQf0WcsCE1kxt3LGbs/Dp3Ip9e80ggfSFL+x0rW5ui9iLAXW+PSPzkWCSOxz9+/X8crLn/xIfg4mDqtnpbG2622kkN0fFzaPfOWl+YNt9So17GJJprrkOcz02vOaD3ePMvOGTIGHj1O2Ro5HIXSlfX1R1NYxu0eMxm599CAo06U3UzvKZofwz/h0aZsOprVtItgMArBv/2mvzQpBiMmfIarmfs05nPPqeZ5BiGxOvSYbWO8sRlUR/ArRXcCX9j/cglAohVGgthBJ16VxbWAZ8XCzhUfr0CmywHgYC8ncJr54wJW9ijql5C43WQIDAQAB
------END PUBLIC KEY-----
-"""
-
 
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # frontend origin
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-
 class Token(BaseModel):
     token: str
+    access_token: str
 
 @app.post("/auth/keycloak-login")
 def keycloak_login(token_data: Token, db: Session = Depends(get_db)):
     try:
+        public_key = get_keycloak_public_key()
+
+        # Decode the token, providing the access_token for validation
         payload = jwt.decode(
             token_data.token,
-            KEYCLOAK_PUBLIC_KEY,
+            public_key,
             algorithms=KEYCLOAK_ALGORITHMS,
-            options={"verify_signature": True, "verify_aud": False, "exp": True},
-            issuer=KEYCLOAK_ISSUER
+            audience="ems-frontend",
+            issuer=KEYCLOAK_ISSUER,
+            access_token=token_data.access_token
         )
         email: str = payload.get("email")
         keycloak_id: str = payload.get("sub")
         if email is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                detail="Could not validate credentials, email is missing",
             )
-    except JWTError:
+    except JWTError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Could not validate credentials",
+            detail=f"Could not validate credentials: {e}",
         )
 
+    # If token is valid, find or create the user
     user = db.query(User).filter(User.email == email).first()
 
     if user is None:
@@ -92,6 +92,4 @@ def keycloak_login(token_data: Token, db: Session = Depends(get_db)):
         user.keycloak_id = keycloak_id
         db.commit()
 
-    # You would typically issue your own JWT here for the FastAPI backend
-    # For simplicity, we are returning a success message.
     return {"message": "User authenticated and mapped successfully", "user_id": user.id}
