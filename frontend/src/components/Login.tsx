@@ -59,7 +59,7 @@ const MilitaryLoginPage: React.FC = () => {
         localStorage.setItem('user', JSON.stringify(result.user));
         localStorage.setItem('isAuthenticated', 'true');
 
-        // ✅ Redirect to profile page
+        // Redirect to profile page
         router.push('/profile');
       }
     } catch (err) {

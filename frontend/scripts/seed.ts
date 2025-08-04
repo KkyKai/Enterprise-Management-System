@@ -11,7 +11,7 @@ async function main() {
       password: hashed,
     },
   });
-  console.log('✅ Test user created');
+  console.log('Test user created');
 }
 
 main()
