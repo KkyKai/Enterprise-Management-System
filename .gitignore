@@ -48,3 +48,5 @@ next-env.d.ts
 .next
 node_modules
 *.pyc
+
+FastAPI_log.txt
