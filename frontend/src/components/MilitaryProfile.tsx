@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from 'react';
-import { User, Calendar, Award, MapPin, Star, Clock, Search, Upload, Trophy } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { Award, MapPin, Star, Clock, Trophy } from 'lucide-react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import { DateClickArg } from '@fullcalendar/interaction';
+import { EventClickArg } from '@fullcalendar/core'
 import Image from "next/image";
 import NavHeader from "./NavHeader"
 
@@ -62,6 +64,11 @@ interface Profile {
 const MilitaryProfileApp: React.FC = () => {
   // Search 
   const [searchQuery, setSearchQuery] = useState("");
+  // Data Load
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const personnelId = 2;
 
   const [profile, setProfile] = useState<Profile>({
     name: "Goh Yu Sheng",
@@ -152,6 +159,41 @@ const MilitaryProfileApp: React.FC = () => {
       { name: "Holiday Party", date: "2025-12-20", type: "Conference", time: "18:00" }
     ]
   });
+  useEffect(() => {
+  const fetchUserDetails = async () => {
+    setLoading(true);
+    try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${apiUrl}/personnel/${personnelId}/details`);
+
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      setUserDetails(data);
+      setError(null); // Clear previous errors
+    } catch (err ) {
+      setError(err.message);
+      setUser(null); // Clear previous data
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchUserDetails()
+
+  const setUserDetails = (data) => {
+    setProfile({
+      ...profile,
+      name: data.name,
+      rank: data.current_rank,
+      currentAppointment: data.current_appointment,
+      career_track: data.current_vocation,
+    })
+  }
+  }, []);
+
 
   // Radar chart component
   const RadarChart: React.FC<{ data: Proficiency }> = ({ data }) => {
@@ -169,7 +211,7 @@ const MilitaryProfileApp: React.FC = () => {
       { label: 'Logistics', value: data.logistics, angle: angles[5] }
     ];
 
-    const getCoords = (angle, radius) => ({
+    const getCoords = (angle: number, radius: number) => ({
       x: center + Math.cos(angle - Math.PI / 2) * radius,
       y: center + Math.sin(angle - Math.PI / 2) * radius
     });
@@ -256,11 +298,11 @@ const MilitaryProfileApp: React.FC = () => {
       }
     }
 
-    const handleEventClick = (clickInfo: any) => {
+    const handleEventClick = (clickInfo: EventClickArg) => {
       alert(`Event: ${clickInfo.event.title}\nType: ${clickInfo.event.extendedProps.type}\nDate: ${clickInfo.event.start?.toLocaleDateString()}`);
     };
 
-    const handleDateClick = (arg: any) => {
+    const handleDateClick = (arg: DateClickArg) => {
       console.log('Date clicked:', arg.dateStr);
     };
 
@@ -399,10 +441,12 @@ const MilitaryProfileApp: React.FC = () => {
               <div className="">
                 <div className="flex items-center space-x-6">
 
-                  <img
+                  <Image
                     src={profile.profilePhoto}
                     alt="Profile"
-                    className="w-24 h-24 rounded-full object-cover border-4 border-blue-500"
+                    width={96}
+                    height={96}
+                    className="rounded-full object-cover border-4 border-blue-500"
                   />
 
                   <div className="flex-1">
@@ -439,8 +483,6 @@ const MilitaryProfileApp: React.FC = () => {
                       </span>
                     </div>
                   </div>
-
-
                 </div>
 
                 {/* Awards Container */}
@@ -471,16 +513,12 @@ const MilitaryProfileApp: React.FC = () => {
                 </div>
               </div>
 
-
-
-
               {/* Radar Chart in Header */}
               <div className="flex-shrink-0">
                 <RadarChart data={profile.proficiency} />
               </div>
 
             </div>
-
 
           </div>
         </div>

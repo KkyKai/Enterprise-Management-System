@@ -4,6 +4,7 @@ import logging
 
 from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 from typing import List
 from .app import crud
 from .app import schemas
@@ -28,6 +29,24 @@ app = FastAPI(
     description="A RESTful API to manage personnel data, including career and course history.",
     version="1.0.0",
 )
+
+# ======== CORS Configuration ========
+# List of origins that are allowed to make requests.
+# Use ["*"] to allow all origins (less secure).
+# For production, you should restrict this to your actual frontend domain.
+origins = [
+    "http://localhost:3000", # Your Next.js frontend
+    "http://localhost:3001", # Another potential frontend port
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"], # Allows all methods (GET, POST, etc.)
+    allow_headers=["*"], # Allows all headers
+)
+# ======== End CORS Configuration ========
 
 @app.exception_handler(Exception)
 async def uncaught_exception_handler(request: Request, exc: Exception):
