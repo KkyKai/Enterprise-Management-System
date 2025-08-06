@@ -29,9 +29,14 @@ export default function Home() {
       console.log("Backend login successful:", data);
       setBackendResponse(data);
 
-    } catch (err: any) {
-      console.error("Error during backend login:", err.message);
-      setError(err.message);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        console.error("Error during backend login:", err.message);
+        setError(err.message);
+      } else {
+        console.error("An unknown error occurred during backend login");
+        setError("An unknown error occurred");
+      }
     }
   };
 
