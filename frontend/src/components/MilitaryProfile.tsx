@@ -10,6 +10,7 @@ import { DateClickArg } from '@fullcalendar/interaction';
 import { EventClickArg } from '@fullcalendar/core'
 import Image from "next/image";
 import NavHeader from "./NavHeader"
+import { listenerCount } from 'process';
 
 // TypeScript interfaces
 interface ROA {
@@ -160,39 +161,63 @@ const MilitaryProfileApp: React.FC = () => {
     ]
   });
   useEffect(() => {
-  const fetchUserDetails = async () => {
+const fetchAllData = async () => {
+    if (!personnelId) {
+    setLoading(false);
+    return;
+  }
     setLoading(true);
+    setError(null);
+
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-      const response = await fetch(`${apiUrl}/personnel/${personnelId}/details`);
+      const detailsUrl = `${apiUrl}/personnel/${personnelId}/details`;
+      const roaUrl = `${apiUrl}/personnel/${personnelId}/roa`;
+      const pdcUrl = `${apiUrl}/personnel/${personnelId}/pdc`;
 
-      if (!response.ok) {
-        throw new Error(`Error: ${response.statusText}`);
-      }
+      // 1. Use Promise.all to fetch all endpoints concurrently
+      // This is more efficient than fetching one after another.
+      const [detailsRes, roaRes, pdcRes] = await Promise.all([
+        fetch(detailsUrl),
+        fetch(roaUrl),
+        fetch(pdcUrl)
+      ]);
 
-      const data = await response.json();
-      setUserDetails(data);
-      setError(null); // Clear previous errors
-    } catch (err ) {
+      // 2. Check if any request failed
+      if (!detailsRes.ok) throw new Error(`Failed to fetch details: ${detailsRes.statusText}`);
+      if (!roaRes.ok) throw new Error(`Failed to fetch ROA: ${roaRes.statusText}`);
+      if (!pdcRes.ok) throw new Error(`Failed to fetch PDC: ${pdcRes.statusText}`);
+
+      // 3. Parse JSON from all successful responses
+      const detailsData = await detailsRes.json();
+      const roaData = await roaRes.json();
+      const pdcData = await pdcRes.json();
+
+      // 4. Update all relevant states with the new data
+      setUserDetails(detailsData, roaData, pdcData)
+
+    } catch (err) {
       setError(err.message);
-      setUser(null); // Clear previous data
     } finally {
       setLoading(false);
     }
   };
 
-  fetchUserDetails()
+  fetchAllData()
 
-  const setUserDetails = (data) => {
+  const setUserDetails = (detailsData, roaData, pdcData) => {
     setProfile({
       ...profile,
-      name: data.name,
-      rank: data.current_rank,
-      currentAppointment: data.current_appointment,
-      career_track: data.current_vocation,
+      name: detailsData.name,
+      rank: detailsData.current_rank,
+      currentAppointment: detailsData.current_appointment,
+      career_track: detailsData.current_vocation,
+      achievements: roaData.achievements,
+      tours: roaData.appointment_history,
+      
     })
   }
-  }, []);
+  }, [personnelId]); // Will update when personnelId changes 
 
 
   // Radar chart component

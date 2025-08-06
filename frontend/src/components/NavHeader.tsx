@@ -37,7 +37,7 @@ const NavHeader: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, handleS
             >
               Profile
             </a>
-            <a
+            {/* <a
               rel="noreferrer"
               href="/upload"
               className={`text-white hover:text-gray-300 transition-colors flex justify-center items-center navbar ${
@@ -45,7 +45,7 @@ const NavHeader: React.FC<HeaderProps> = ({ searchQuery, setSearchQuery, handleS
               }`}
             >
               Upload
-            </a>
+            </a> */}
           </div>
 
           {/* Search Bar */}
