@@ -6,9 +6,9 @@ from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.responses import RedirectResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from .app import crud
-from .app import schemas
-from .app.database import database
+from app import crud
+from app import schemas
+from app.database import database
 
 # Configure the logger to write to a file named 'app.log'
 logging.basicConfig(
