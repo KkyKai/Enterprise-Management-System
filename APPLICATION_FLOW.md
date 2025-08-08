@@ -28,7 +28,7 @@ The application uses a modern, decoupled architecture with a Next.js frontend an
 2.  **Calling the Backend:**
     *   The `useEffect` hook in `index.tsx` is triggered whenever the `session` object changes (e.g., on login or token refresh).
     *   If a `session.accessToken` exists, the `loginToBackend` function is called.
-    *   `loginToBackend` makes a `POST` request to the `http://localhost:8000/auth/login` endpoint on the FastAPI backend.
+    *   `loginToBackend` makes a `POST` request to a configurable backend endpoint (e.g., `${process.env.NEXT_PUBLIC_API_URL}/auth/login`) on the FastAPI backend.
     *   Crucially, it includes the Keycloak `access_token` in the `Authorization` header as a Bearer token.
 
 ### Backend (FastAPI)
