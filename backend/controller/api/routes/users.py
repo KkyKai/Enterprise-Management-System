@@ -4,16 +4,8 @@ from sqlalchemy.orm import Session
 from typing import List
 from models import crud
 from view import schemas
-from models.database import SessionLocal
+from models.database import SessionLocal, get_db
 from authentication.main import get_current_user
-
-# Dependency to get a database session for each request
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # Create a new router for user-related endpoints
 router = APIRouter()

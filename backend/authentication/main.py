@@ -19,7 +19,7 @@ from .auth import settings
 
 from models import crud
 from models import models
-from models.database import SessionLocal
+from models.database import SessionLocal, get_db
 
 # app = FastAPI()
 router = APIRouter() 
@@ -27,13 +27,6 @@ router = APIRouter()
 # This scheme is used to protect our OWN endpoints.
 # It expects a JWT issued by our backend.
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # --- PUBLIC LOGIN ENDPOINT ---
 @router.post("/login", summary="Login with Keycloak token to get a backend session token")
